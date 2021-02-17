@@ -266,7 +266,7 @@ UCHAR ZipInit(ZIP *Z,UCHAR *filename)
    Z->buffer=NULL; //I know,memset did it
    Z->bsize=0;     //I know,memset did it
    Z->flag=NO;     //I know,memset did it
-   Z->AK==NULL;    //I know,memset did it
+   Z->AK=NULL;    //I know,memset did it
 
 #ifdef _TIME_H_
     time_t tim;
