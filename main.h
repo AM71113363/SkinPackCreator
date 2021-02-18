@@ -1,23 +1,20 @@
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
-//#include <commctrl.h>
 
 #define YES         1
 #define NO          0
-
 
 HINSTANCE ins;
 HWND hWnd,B_go; 
 HWND SKPname;         WNDPROC OldNameEditProc;
 HWND SKPdescription;  WNDPROC OldDescEditProc;
 
-
 typedef struct MYSKINS_
 {
-    UCHAR *name;  //the Name Of Skin ( can contain SPACE)
-    UCHAR *path; //path of the SKIN to import(just COPY,no MOVE)
-    UCHAR flag;  //if the SKIN fails to READ   
+    UCHAR *name;    //the Name Of Skin
+    UCHAR *path;    //path of the SKIN to import
+    UCHAR flag;     //if the SKIN fails to READ   
     struct MYSKINS_ *next;
 }MYSKINS;
 
@@ -42,7 +39,7 @@ const static char MANIFEST_JSON[]=
 "}\0";
 
 
-//arg %d(num) %d(num)
+//arg=   %d(num) %d(num)
 const static char SKINS_JSON_HEADER[]=
 "{\n"
 "\x20\x20\x20\x20\"skins\":[\n"
@@ -52,7 +49,7 @@ const static char SKINS_JSON_HEADER[]=
 "\"type\": \"free\"\n"
 "}\0";
 
-//arg %d(num) %d(num)
+//arg=   %d(num) %d(num)
 const static char SKINS_JSON_BODY[]=    
 ",\n"
 "{\n"
@@ -61,11 +58,9 @@ const static char SKINS_JSON_BODY[]=
 "\"type\": \"free\"\n"
 "}\0";
 
-//arg   %s(name)   %s(name)
+//arg=   %s(name)   %s(name)
 const static char SKINS_JSON_END[]=      
 "\n\x20\x20\x20\x20],\n"
 "\x20\x20\x20\x20\"serialize_name\": \"%s\",\n"
 "\x20\x20\x20\x20\"localization_name\": \"%s\"\n"
 "}\0";
-
-
