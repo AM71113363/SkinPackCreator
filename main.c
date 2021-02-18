@@ -80,22 +80,22 @@ UCHAR AddSkin(UCHAR *filename)
     AddToList(filename, temp);
     sprintf(Status,"Imported Skins[ %d ]\0",myskinsLen);
     SetWindowText(hWnd,Status);
-    if(myskinsLen==1)
+    if(myskinsLen==1)        // > 1
      EnableWindow(B_go,1);  //no point of creating a skinPack with only 1 skin 
     return YES;
 }
 
 void MakeMyPack()
 {
-	UCHAR RootFolder[100]; //the Pack will use this NAME
-	UCHAR ThisDescription[100]; //this is used only in en_US.lang,DISPLAY pack name
-	UCHAR Temp[512];
-	UCHAR UUID1[36]; UCHAR UUID2[36]; ULONG crc;
+    UCHAR RootFolder[100]; //the Pack will use this NAME
+    UCHAR ThisDescription[100]; //this is used only in en_US.lang,DISPLAY pack name
+    UCHAR Temp[512];
+    UCHAR UUID1[36]; UCHAR UUID2[36]; ULONG crc;
 
-	ZIP A; UCHAR Ret; UCHAR *buffer; MYSKINS *s;
-	DWORD len; UINT i; 
+    ZIP A; UCHAR Ret; UCHAR *buffer; MYSKINS *s;
+    DWORD len; UINT i; 
 
-    EnableWindow(B_go,0);	 
+    //EnableWindow(B_go,0);	 
 //Get INFO     
     memset(RootFolder,0,100);
     if(GetWindowText(SKPname,RootFolder,99)<1)
@@ -135,22 +135,22 @@ void MakeMyPack()
     i=0;
     for(s=PM;s!=NULL;s=s->next)
     {
-	    sprintf(Temp,"%dam.png\0",i);	
-	    Ret=FileToZip(&A,s->path,Temp);
-	    if(Ret==NO)
-	    {
-           if(A.flag==YES) //cand read file
-              continue;
-           free(buffer);            
-           FreeList();
-           FreeZip(&A);
-           SMS("Error: Add(PNG to MCPACK)\nDelete the created .mcpack");
-           SMS(A.err);
-           exit(0);
-           return;
+        sprintf(Temp,"%dam.png\0",i);	
+	Ret=FileToZip(&A,s->path,Temp);
+	if(Ret==NO)
+	{
+            if(A.flag==YES) //cant read file
+                continue;
+            free(buffer);            
+            FreeList();
+            FreeZip(&A);
+            SMS("Error: Add(PNG to MCPACK)\nDelete the created .mcpack");
+            SMS(A.err);
+            exit(0);
+            return;
         }
         i++;                              
-	    s->flag=YES; 
+	s->flag=YES; 
     }
     //just checking
     if(i==0)
@@ -158,22 +158,20 @@ void MakeMyPack()
         FreeList();    
         FreeZip(&A); 
         free(buffer);     
-	    SMS("SkinPack Failed To COPY!!!!\nDelete the created .mcpack");
+	SMS("SkinPack Failed To COPY!!!!\nDelete the created .mcpack");
         exit(0);
-	    return;
+      return;
     }     
  //create LANG file
- 	
-   	len=sprintf(buffer,"skinpack.%s=%s\n\0",RootFolder,ThisDescription); 
-	
-	i=0; myskinsLen = 0;
+    len=sprintf(buffer,"skinpack.%s=%s\n\0",RootFolder,ThisDescription); 
+    i=0; myskinsLen = 0;
     for(s=PM;s!=NULL;s=s->next)
     {
-		if(s->flag!=YES)
-				continue;
-	     len+=sprintf(&buffer[len],"skin.%s.%dam=%s\n\0",RootFolder,i,s->name);
-	     i++;
-	     myskinsLen++;
+        if(s->flag!=YES)
+	    continue;
+	len+=sprintf(&buffer[len],"skin.%s.%dam=%s\n\0",RootFolder,i,s->name);
+	i++;
+        myskinsLen++;
     }
     buffer[len]=0;
  //   Ret = BufferToZip(&A,"texts/",NULL,0);
@@ -183,10 +181,10 @@ void MakeMyPack()
         FreeList();
         FreeZip(&A); 
         free(buffer);     
-	    SMS("Adding en_US.lang Failed!!!!\nDelete the created .mcpack");
-	    SMS(A.err);
+	SMS("Adding en_US.lang Failed!!!!\nDelete the created .mcpack");
+	SMS(A.err);
         exit(0);
-	    return;
+      return;
     }	
 //create manifest.json 
     crc=0;
@@ -194,92 +192,88 @@ void MakeMyPack()
     GenerateUUID(UUID1,&crc);
     GenerateUUID(UUID2,&crc);
     len=sprintf(buffer,MANIFEST_JSON,RootFolder,RootFolder,UUID1,UUID2);
-	buffer[len]=0;
-	Ret = BufferToZip(&A,"manifest.json",buffer,len);
+    buffer[len]=0;
+    Ret = BufferToZip(&A,"manifest.json",buffer,len);
     if(Ret==NO)
     {
         FreeList();
         FreeZip(&A); 
         free(buffer);     
-	    SMS("Adding manifest.json Failed!!!!\nDelete the created .mcpack");
-	    SMS(A.err);
+	SMS("Adding manifest.json Failed!!!!\nDelete the created .mcpack");
+	SMS(A.err);
         exit(0);
-	    return;
+      return;
     }
 //create skins.json        
-	len=sprintf(buffer,SKINS_JSON_HEADER,0,0);
+    len=sprintf(buffer,SKINS_JSON_HEADER,0,0);
     //write other skins
-	for(i=1;i<myskinsLen;i++)
-	{
+    for(i=1;i<myskinsLen;i++)
+    {
         len+=sprintf(&buffer[len],SKINS_JSON_BODY,i,i);
-	}		
+    }		
     //write END
     len+=sprintf(&buffer[len],SKINS_JSON_END,RootFolder,RootFolder);
     buffer[len]=0;
-	Ret = BufferToZip(&A,"skins.json",buffer,len);
+    Ret = BufferToZip(&A,"skins.json",buffer,len);
     if(Ret==NO)
     {
         FreeList();
         FreeZip(&A); 
         free(buffer);     
-	    SMS("Adding skins.json Failed!!!!\nDelete the created .mcpack");
-	    SMS(A.err);
+	SMS("Adding skins.json Failed!!!!\nDelete the created .mcpack");
+	SMS(A.err);
         exit(0);
-	    return;
+      return;
     } 
 //close ZIP, Write Final DATA
-	Ret=EndZip(&A);
+    Ret=EndZip(&A);
     if(Ret==NO)
     {
         FreeList();
         FreeZip(&A); 
         free(buffer);     
-	    SMS("Adding Zip Extra DATA Failed!!!!\nDelete the created .mcpack");
-	    SMS(A.err);
+	SMS("Adding Zip Extra DATA Failed!!!!\nDelete the created .mcpack");
+	SMS(A.err);
         exit(0);
-	    return;
-    } 		
-
+      return;
+    }
     FreeList();
     free(buffer);
-	myskinsLen=0;  
-   SetWindowText(hWnd,"DONE"); 
-   _sleep(2000); 
+    myskinsLen=0;  
+    SetWindowText(hWnd,"DONE"); 
+   _sleep(2000); //Sleep(2000);
    exit(0);                    
 }
 
-
-
 LRESULT CALLBACK NameEditProc(HWND hnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch (message) 
-	{
-    	case WM_CHAR: 
+    switch (message) 
+    {
+        case WM_CHAR: 
         {
-             if(wParam == VK_BACK)
-             break;
-			if(!(isalnum((char)wParam))) return 0;
-	     }break;		
+            if(wParam == VK_BACK)
+                break;
+	    if(!(isalnum((char)wParam))) return 0;
+	}break;		
     }
-	return CallWindowProc(OldNameEditProc, hnd, message, wParam, lParam);
+  return CallWindowProc(OldNameEditProc, hnd, message, wParam, lParam);
 }
 
 LRESULT CALLBACK DescEditProc(HWND hnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch (message) 
-	{
-    	case WM_CHAR: 
+    switch (message) 
+    {
+        case WM_CHAR: 
         {
              if((wParam == VK_BACK) || (wParam == VK_SPACE) || 
                 (wParam == '_') || (wParam == '-') ||
                 (wParam == '(') || (wParam == ')'))
              break;
-			if(!(isalnum((char)wParam))) return 0;
-	     }break;		
+	     if(!(isalnum((char)wParam))) return 0;
+	}break;		
     }
-	return CallWindowProc(OldDescEditProc, hnd, message, wParam, lParam);
+  return CallWindowProc(OldDescEditProc, hnd, message, wParam, lParam);
 }
-
 
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -287,43 +281,41 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
     {
         case WM_CREATE:
         {
-             hWnd = hwnd;
-             CreateWindow("BUTTON","SkinPack Name",WS_CHILD|WS_VISIBLE|BS_GROUPBOX,2,2,217,50,hwnd,NULL,ins,NULL);
-             SKPname= CreateWindowEx(WS_EX_CLIENTEDGE,"edit","",WS_CHILD|WS_VISIBLE,11,22,200,22,hwnd,NULL,ins,NULL);
-             OldNameEditProc=(WNDPROC)SetWindowLong(SKPname, GWL_WNDPROC, (LPARAM)NameEditProc);
+            hWnd = hwnd;
+            CreateWindow("BUTTON","SkinPack Name",WS_CHILD|WS_VISIBLE|BS_GROUPBOX,2,2,217,50,hwnd,NULL,ins,NULL);
+            SKPname= CreateWindowEx(WS_EX_CLIENTEDGE,"edit","",WS_CHILD|WS_VISIBLE,11,22,200,22,hwnd,NULL,ins,NULL);
+            OldNameEditProc=(WNDPROC)SetWindowLong(SKPname, GWL_WNDPROC, (LPARAM)NameEditProc);
                  
-             CreateWindow("BUTTON","Description",WS_CHILD|WS_VISIBLE|BS_GROUPBOX,2,55,277,50,hwnd,NULL,ins,NULL);
-             SKPdescription= CreateWindowEx(WS_EX_CLIENTEDGE,"edit","",WS_CHILD|WS_VISIBLE,11,75,260,22,hwnd,NULL,ins,NULL);
-    		 OldDescEditProc=(WNDPROC)SetWindowLong(SKPdescription, GWL_WNDPROC, (LPARAM)DescEditProc);
+            CreateWindow("BUTTON","Description",WS_CHILD|WS_VISIBLE|BS_GROUPBOX,2,55,277,50,hwnd,NULL,ins,NULL);
+            SKPdescription= CreateWindowEx(WS_EX_CLIENTEDGE,"edit","",WS_CHILD|WS_VISIBLE,11,75,260,22,hwnd,NULL,ins,NULL);
+    	    OldDescEditProc=(WNDPROC)SetWindowLong(SKPdescription, GWL_WNDPROC, (LPARAM)DescEditProc);
                      
-             B_go = CreateWindow("BUTTON","Start",WS_CHILD|WS_VISIBLE|WS_DISABLED,225,11,54,40,hwnd,(HMENU)1111,ins,NULL);
+            B_go = CreateWindow("BUTTON","Start",WS_CHILD|WS_VISIBLE|WS_DISABLED,225,11,54,40,hwnd,(HMENU)1111,ins,NULL);
             
-             CenterOnScreen();
-             DragAcceptFiles(hwnd,1);
+            CenterOnScreen();
+            DragAcceptFiles(hwnd,1);
         }
         break;   
         case WM_DROPFILES:
-		{
-           HDROP hDrop;
-		   UINT sa;
-           UINT x;    
-           UCHAR tmp[MAX_PATH];
-
-           hDrop=(HDROP)wParam;	
-           sa=DragQueryFile(hDrop,0xFFFFFFFF,0,0);
-           for(x=0;x<sa;x++)
-           {
+	{
+            HDROP hDrop;
+            UINT sa, x;    
+            UCHAR tmp[MAX_PATH];
+            hDrop=(HDROP)wParam;	
+            sa=DragQueryFile(hDrop,0xFFFFFFFF,0,0);
+            for(x=0;x<sa;x++)
+            {
                memset(tmp,0,MAX_PATH);
                DragQueryFile(hDrop,x,tmp,MAX_PATH);
                if((GetFileAttributes(tmp) & FILE_ATTRIBUTE_DIRECTORY)==FILE_ATTRIBUTE_DIRECTORY)
                    continue;
                AddSkin(tmp);
-           }
-		   DragFinish(hDrop);
-     }
-     break; 
-       case WM_COMMAND:
-       {
+            }
+            DragFinish(hDrop);
+        }
+        break; 
+        case WM_COMMAND:
+        {
             switch(LOWORD(wParam))
             {                  
                  case 1111:
@@ -334,18 +326,16 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                  break;                 
             }
             return 0;
-       }
-       break;
+        }
+        break;
         case WM_DESTROY:
-            PostQuitMessage (0);       /* send a WM_QUIT to the message queue */
+            PostQuitMessage (0);
             break;
-        default:                      /* for messages that we don't deal with */
+        default:
             return DefWindowProc (hwnd, message, wParam, lParam);
     }
-
     return 0;
 }
-
 
 int WINAPI WinMain (HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nFunsterStil)
 {
@@ -381,18 +371,16 @@ int WINAPI WinMain (HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpsz
          TranslateMessage(&messages);
          DispatchMessage(&messages);
     }
-
-     return messages.wParam;
+  return messages.wParam;
 }
 
 void CenterOnScreen()
 {
-     RECT rcClient, rcDesktop;
-	 int nX, nY;
-     SystemParametersInfo(SPI_GETWORKAREA, 0, &rcDesktop, 0);
-     GetWindowRect(hWnd, &rcClient);
-	 nX=((rcDesktop.right - rcDesktop.left) / 2) -((rcClient.right - rcClient.left) / 2);
-	 nY=((rcDesktop.bottom - rcDesktop.top) / 2) -((rcClient.bottom - rcClient.top) / 2);
-SetWindowPos(hWnd, NULL, nX, nY, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+    RECT rcClient, rcDesktop;
+    int nX, nY;
+    SystemParametersInfo(SPI_GETWORKAREA, 0, &rcDesktop, 0);
+    GetWindowRect(hWnd, &rcClient);
+    nX=((rcDesktop.right - rcDesktop.left) / 2) -((rcClient.right - rcClient.left) / 2);
+    nY=((rcDesktop.bottom - rcDesktop.top) / 2) -((rcClient.bottom - rcClient.top) / 2);
+    SetWindowPos(hWnd, NULL, nX, nY, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
-
