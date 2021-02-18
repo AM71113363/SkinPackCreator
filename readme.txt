@@ -9,5 +9,7 @@ run SKinPackCreator.exe (32Bit Windows)
 4.Click [ START ]
 //the App will EXIT when DONE.
 
-
-
+NOTE:
+The App can accept files(.png) with the same name.
+.mcpack is a Zip Format [ Uncompressed ].
+#test loading 1000 skins with Compress=ON, it saves less than 1Kb.
