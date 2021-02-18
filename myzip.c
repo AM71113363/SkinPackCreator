@@ -6,9 +6,7 @@
 #include <time.h>
 #include "myzip.h"
 
-
 DWORD CRC32(DWORD start,UCHAR *buf, DWORD len);
-
 
 UCHAR GrowPK(ZIP *Z)
 {
@@ -45,8 +43,7 @@ UCHAR BufferToZip(ZIP *Z,UCHAR *name,UCHAR *buffer,DWORD len)
     //realloc the struct
     if(GrowPK(Z) == NO)
       return NO;
-    
-
+  
     memset(Z->AK,0,sizeof(ARCH_HDR));
     
     if((buffer!=NULL) && (len > 0) ) //maybe is a folder 
@@ -108,9 +105,7 @@ UCHAR BufferToZip(ZIP *Z,UCHAR *name,UCHAR *buffer,DWORD len)
    return YES;
 }
 
-
 //----------------
-
 UCHAR FileToZip(ZIP *Z,UCHAR *path,UCHAR *name)
 {
     DWORD dwFileSize; DWORD dwRead;
@@ -200,8 +195,8 @@ UCHAR GenerateList(ZIP *Z)
     Z->ListSize = size;
     return YES;
 }
-//---------
 
+//---------
 UCHAR AddEnd(ZIP *Z)
 {
     END_HDR ED;
@@ -218,13 +213,11 @@ UCHAR AddEnd(ZIP *Z)
         strcpy(Z->err,"WriteFile FAILED!!!\0");                                  
         return NO;
     }
-         
-return YES;
+  return YES;
 }
 
 void FreeZip(ZIP *Z)
 {
-    DWORD i; 	
     if(Z->number > 0)
     {
       ARCH_HDR *p,*prev;
@@ -256,6 +249,7 @@ UCHAR EndZip(ZIP *Z)
    }else{ strcpy(Z->err,"Zip Handle Invalid!!!\0"); }
    return Ret; 
 }
+
 //---------
 UCHAR ZipInit(ZIP *Z,UCHAR *filename)
 {
@@ -266,7 +260,7 @@ UCHAR ZipInit(ZIP *Z,UCHAR *filename)
    Z->buffer=NULL; //I know,memset did it
    Z->bsize=0;     //I know,memset did it
    Z->flag=NO;     //I know,memset did it
-   Z->AK=NULL;    //I know,memset did it
+   Z->AK=NULL;     //I know,memset did it
 
 #ifdef _TIME_H_
     time_t tim;
@@ -282,7 +276,3 @@ UCHAR ZipInit(ZIP *Z,UCHAR *filename)
 
 return YES;
 }
-   
-
-
-
