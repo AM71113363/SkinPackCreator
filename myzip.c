@@ -268,7 +268,7 @@ UCHAR ZipInit(ZIP *Z,UCHAR *filename)
     time(&tim);
     ti = localtime(&tim);
     Z->mt = (USHORT)(((ti->tm_hour) << 11) + ((ti->tm_min) << 5) + ((ti->tm_sec) >> 1));
-    Z->md = (USHORT)(((ti->tm_year + 1900 - 1980) << 9) + ((ti->tm_mon + 1) << 5) + ti->tm_mday);
+    Z->md = (USHORT)(((ti->tm_year - 80) << 9) + ((ti->tm_mon + 1) << 5) + ti->tm_mday);
 #else
     Z->mt = 0x48b2; //nothing special about this Date:Time, 
     Z->md = 0x5248; //Its just the Actual (DATE/TIME) when I started creating this
